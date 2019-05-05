@@ -16,9 +16,11 @@ pub fn score(result_of_game: &str) -> i32 {
 
         if previous_frame_was_spare {
             score += first_roll;
-            previous_frame_was_spare = false;
         }
-        if second_roll_str == "/" {
+
+        previous_frame_was_spare = false;
+
+        if is_spare(&second_roll_str) {
             previous_frame_was_spare = true;
             score += 10;
         }
@@ -42,6 +44,10 @@ fn add_roll(roll_str: &String) -> i32 {
         return roll_str.parse::<i32>().unwrap();
     }
     return 0;
+}
+
+fn is_spare(second_roll: &String) -> bool {
+    return second_roll == "/";
 }
 
 #[cfg(test)]
