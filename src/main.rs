@@ -26,7 +26,6 @@ pub fn score(result_of_game: &str) -> i32 {
             score += first_roll + second_roll;
         }
 
-        println!("hi");
         if let Some(last_frame_extra_roll) = frame_chars.next() {
             score += add_roll(&last_frame_extra_roll.to_string())
         }
