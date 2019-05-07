@@ -24,7 +24,7 @@ pub fn score(result_of_game: &str) -> i32 {
         let first_roll = add_roll(&first_roll_str);
         let second_roll = add_roll(&second_roll_str);
 
-        if previous_frame_was_spare {
+        if previous_frame_was_spare && frame_number <= 10 {
             score += first_roll;
         }
 
@@ -121,5 +121,10 @@ mod tests {
     #[test]
     fn test_strikes() {
         assert_eq!(score("X X X X X X X X X X X X"), 300);
+    }
+
+    #[test]
+    fn test_mixed_game() {
+        assert_eq!(score("14 45 6/ 5/ X -1 7/ 6/ X 2/ 6"), 133);
     }
 }
