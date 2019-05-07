@@ -11,17 +11,17 @@ pub fn score(result_of_game: &str) -> i32 {
     for (frame_number, frame) in frames.enumerate() {
         let mut frame_chars = frame.chars();
 
-        let first_roll_str = match frame_chars.next() {
+        let first_roll_as_string = match frame_chars.next() {
             Some(c) => c.to_string(),
             None => String::from("-")
         };
-        let second_roll_str = match frame_chars.next() {
+        let second_roll_as_string = match frame_chars.next() {
             Some(c) => c.to_string(),
             None => String::from("-")
         };
 
-        let first_roll = add_roll(&first_roll_str);
-        let second_roll = add_roll(&second_roll_str);
+        let first_roll = add_roll(&first_roll_as_string);
+        let second_roll = add_roll(&second_roll_as_string);
 
         if previous_frame_was_spare && is_standard_frame(frame_number) {
             score += first_roll;
@@ -29,7 +29,7 @@ pub fn score(result_of_game: &str) -> i32 {
 
         previous_frame_was_spare = false;
 
-        if is_spare(&second_roll_str) {
+        if is_spare(&second_roll_as_string) {
             previous_frame_was_spare = true;
             score += 10;
 
@@ -38,7 +38,7 @@ pub fn score(result_of_game: &str) -> i32 {
                 strike_bonus_rolls -= 2;
             }
         }
-        else if is_strike(&first_roll_str) {
+        else if is_strike(&first_roll_as_string) {
             if is_standard_frame(frame_number) {
                 if strike_bonus_rolls > 0 {
                     score += 10;
@@ -126,6 +126,6 @@ mod tests {
 
     #[test]
     fn test_mixed_game() {
-        assert_eq!(score("14 45 6/ 5/ X -1 7/ 6/ X 2/ 6"), 133);
+        assert_eq!(score("14 45 6/ 5/ X -1 7/ 6/ X 2/6"), 133);
     }
 }
