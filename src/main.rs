@@ -79,10 +79,10 @@ fn add_roll(roll_str: &String) -> i32 {
     if roll_str == "/" {
         return 0;
     }
-    if roll_str != "-" {
-        return roll_str.parse::<i32>().unwrap();
+    if roll_str == "-" {
+        return 0;
     }
-    return 0;
+    return roll_str.parse::<i32>().unwrap();
 }
 
 fn is_spare(second_roll: &String) -> bool {
