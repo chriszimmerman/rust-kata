@@ -6,10 +6,9 @@ pub fn score(result_of_game: &str) -> i32 {
     let frames = result_of_game.split_whitespace();
     let mut score = 0;
     let mut previous_frame_was_spare = false;
-    let mut strike_stack = 0;
-    let mut frame_number = 1;
+    let mut strike_bonus_rolls = 0;
 
-    for frame in frames {
+    for (frame_number, frame) in frames.enumerate() {
         let mut frame_chars = frame.chars();
 
         let first_roll_str = match frame_chars.next() {
@@ -24,7 +23,7 @@ pub fn score(result_of_game: &str) -> i32 {
         let first_roll = add_roll(&first_roll_str);
         let second_roll = add_roll(&second_roll_str);
 
-        if previous_frame_was_spare && frame_number <= 10 {
+        if previous_frame_was_spare && is_standard_frame(frame_number) {
             score += first_roll;
         }
 
@@ -34,39 +33,37 @@ pub fn score(result_of_game: &str) -> i32 {
             previous_frame_was_spare = true;
             score += 10;
 
-            if strike_stack > 0 {
+            if strike_bonus_rolls > 0 {
                 score += 10;
-                strike_stack -= 2;
+                strike_bonus_rolls -= 2;
             }
         }
         else if is_strike(&first_roll_str) {
-            if frame_number <= 10 {
-                if strike_stack > 0 {
+            if is_standard_frame(frame_number) {
+                if strike_bonus_rolls > 0 {
                     score += 10;
-                    strike_stack -= 1;
+                    strike_bonus_rolls -= 1;
                 }
-                if strike_stack > 0 {
+                if strike_bonus_rolls > 0 {
                     score += 10;
-                    strike_stack -= 1;
+                    strike_bonus_rolls -= 1;
                 }
             }
-            strike_stack += 2;
+            strike_bonus_rolls += 2;
             score += 10;
         }
         else {
             score += first_roll + second_roll;
 
-            if strike_stack > 0 {
+            if strike_bonus_rolls > 0 {
                 score += first_roll + second_roll;
-                strike_stack -= 2;
+                strike_bonus_rolls -= 2;
             }
         }
 
         if let Some(last_frame_extra_roll) = frame_chars.next() {
             score += add_roll(&last_frame_extra_roll.to_string())
         }
-
-        frame_number += 1;
     }
 
     return score;
@@ -83,6 +80,10 @@ fn add_roll(roll_str: &String) -> i32 {
         return 0;
     }
     return roll_str.parse::<i32>().unwrap();
+}
+
+fn is_standard_frame(frame_number: usize) -> bool {
+    return frame_number < 10;
 }
 
 fn is_spare(second_roll: &String) -> bool {
