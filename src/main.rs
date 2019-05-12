@@ -6,7 +6,8 @@ pub fn score(result_of_game: &str) -> i32 {
     let frames = result_of_game.split_whitespace();
     let mut score = 0;
     let mut previous_frame_was_spare = false;
-    let mut strike_bonus_rolls = 0;
+    let mut first_roll_after_strike_bonuses = 0;
+    let mut second_roll_after_strike_bonuses = 0;
 
     for (frame_number, frame) in frames.enumerate() {
         let mut frame_chars = frame.chars();
@@ -33,31 +34,42 @@ pub fn score(result_of_game: &str) -> i32 {
             previous_frame_was_spare = true;
             score += 10;
 
-            if strike_bonus_rolls > 0 {
+            if first_roll_after_strike_bonuses > 0 && second_roll_after_strike_bonuses > 0 {
                 score += 10;
-                strike_bonus_rolls -= 2;
+                first_roll_after_strike_bonuses = 0;
+                second_roll_after_strike_bonuses = 0;
             }
         }
         else if is_strike(&first_roll_as_string) {
             if is_standard_frame(frame_number) {
-                if strike_bonus_rolls > 0 {
-                    score += 10;
-                    strike_bonus_rolls -= 1;
+                score += 10 * first_roll_after_strike_bonuses;
+
+                first_roll_after_strike_bonuses = second_roll_after_strike_bonuses + 1;
+                second_roll_after_strike_bonuses = 1;
+
+                score += 10;
+            }
+            else {
+                if first_roll_after_strike_bonuses > 0 {
+                    score += 10 * first_roll_after_strike_bonuses;
+                    first_roll_after_strike_bonuses = 0;
                 }
-                if strike_bonus_rolls > 0 {
+                else if second_roll_after_strike_bonuses > 0 {
                     score += 10;
-                    strike_bonus_rolls -= 1;
+                    second_roll_after_strike_bonuses = 0;
                 }
             }
-            strike_bonus_rolls += 2;
-            score += 10;
         }
         else {
             score += first_roll + second_roll;
 
-            if strike_bonus_rolls > 0 {
-                score += first_roll + second_roll;
-                strike_bonus_rolls -= 2;
+            if first_roll_after_strike_bonuses > 0 {
+                score += first_roll * first_roll_after_strike_bonuses;
+                first_roll_after_strike_bonuses = 0;
+            }
+            if second_roll_after_strike_bonuses > 0 {
+                score += second_roll * second_roll_after_strike_bonuses;
+                second_roll_after_strike_bonuses = 0;
             }
         }
 
@@ -127,5 +139,10 @@ mod tests {
     #[test]
     fn test_mixed_game() {
         assert_eq!(score("14 45 6/ 5/ X -1 7/ 6/ X 2/6"), 133);
+    }
+
+    #[test]
+    fn test_only_some_pins_are_knocked_down_on_second_roll_after_strike() {
+        assert_eq!(score("X X 3- -- -- -- -- -- -- --"), 39);
     }
 }
